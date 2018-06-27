@@ -1,0 +1,9 @@
+/.idea
+.idea/
+.idea/*.xml
+/*.iml
+/.idea_modules
+/venv
+venv/
+venv
+venv/lib/*
