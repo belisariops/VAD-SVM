@@ -18,29 +18,33 @@ def create_vector_from_wav(file_name, talking):
     # a =  np.append(mfcc_aux[0], talking)
     # if len(a) != 14:
     #     print("ASDF")
-    return np.append(mfcc_aux[0], talking)
+    mfcc_aux = mfcc_aux[0].reshape(-1,len(mfcc_aux[0]))
+    mfcc_feat = [file_name.name] + mfcc_aux.tolist()[0] + [talking]
+    return np.array(mfcc_feat, dtype=object)
 
 
 def main():
     path_list = Path("Audios").iterdir()
-    output_vector_length = 14
+    output_vector_length = 15
     data_frame = pd.DataFrame()
     for audio_path in path_list:
-        talking_path = Path("{0}/not_talking".format(audio_path)).iterdir()
-        not_talking_path = Path("{0}/talking".format(audio_path)).iterdir()
+        talking_path = Path("{0}/talking".format(audio_path)).iterdir()
+        not_talking_path = Path("{0}/not_talking".format(audio_path)).iterdir()
         for audio_file in talking_path:
             mfcc_feat = create_vector_from_wav(audio_file, True)
             data_frame = data_frame.append(pd.DataFrame(mfcc_feat.reshape(-1,len(mfcc_feat))))
         for audio_file in not_talking_path:
             mfcc_feat = create_vector_from_wav(audio_file, False)
-            data_frame = data_frame.append(pd.DataFrame(mfcc_feat.reshape(-1, len(mfcc_feat))))
+            data_frame = data_frame.append(pd.DataFrame(mfcc_feat.reshape(-1,len(mfcc_feat))))
 
     columns = []
-    for column_id in range(output_vector_length - 1):
+    columns.append("file_name")
+    for column_id in range(output_vector_length - 2):
         columns.append("mfcc_{0}".format(column_id))
     columns.append("talking")
 
     data_frame.columns = columns
+
     data_frame.to_csv('data.csv', index=False)
 
     # mfcc_feat = create_vector_from_wav("Audios/Blade_runner_2049/not_talking/Blade_runner_2049_0.wav", True)
